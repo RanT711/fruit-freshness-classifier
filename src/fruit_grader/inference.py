@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from io import BytesIO
 from dataclasses import dataclass
 from typing import Any, Mapping
+
+from PIL import Image, UnidentifiedImageError
 
 
 @dataclass(frozen=True)
@@ -40,3 +43,13 @@ def prediction_from_result(result: Any) -> Prediction:
         result.probs.top1,
         result.probs.top1conf,
     )
+
+
+def validate_image_bytes(image_bytes: bytes) -> None:
+    """Raise a clear error when uploaded bytes are not a readable image."""
+
+    try:
+        with Image.open(BytesIO(image_bytes)) as image:
+            image.verify()
+    except (OSError, UnidentifiedImageError) as error:
+        raise ValueError("无法读取图片，请上传有效的 JPG 或 PNG 文件。") from error
