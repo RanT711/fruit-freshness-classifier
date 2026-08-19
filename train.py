@@ -14,6 +14,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--epochs", type=int, default=50, help="训练轮数")
     parser.add_argument("--imgsz", type=int, default=224, help="训练图像尺寸")
     parser.add_argument("--batch", type=int, default=16, help="训练批大小")
+    parser.add_argument("--device", default=None, help="训练设备，例如 0 表示第一张 GPU")
     parser.add_argument("--project", default="runs", help="Ultralytics 训练输出目录")
     parser.add_argument("--name", default="fruit_freshness", help="本次训练名称")
     parser.add_argument("--output-model", default="models/best.pt", help="保存最佳权重的位置")
@@ -44,6 +45,7 @@ def main() -> None:
         epochs=args.epochs,
         imgsz=args.imgsz,
         batch=args.batch,
+        device=args.device,
         project=args.project,
         name=args.name,
     )

@@ -3,6 +3,7 @@ from io import BytesIO
 from PIL import Image
 import pytest
 
+from fruit_grader import inference
 from fruit_grader.inference import prediction_from_values, validate_image_bytes
 
 
@@ -25,6 +26,16 @@ def test_validate_image_bytes_accepts_png():
     Image.new("RGB", (8, 8), "green").save(output, format="PNG")
 
     assert validate_image_bytes(output.getvalue()) is None
+
+
+def test_image_array_from_bytes_converts_uploaded_png_to_rgb_pixels():
+    output = BytesIO()
+    Image.new("RGBA", (3, 2), (12, 34, 56, 128)).save(output, format="PNG")
+
+    image = inference.image_array_from_bytes(output.getvalue())
+
+    assert image.shape == (2, 3, 3)
+    assert image[0, 0].tolist() == [12, 34, 56]
 
 
 def test_validate_image_bytes_rejects_non_image():

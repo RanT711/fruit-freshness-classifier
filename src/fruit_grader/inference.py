@@ -6,6 +6,7 @@ from io import BytesIO
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+import numpy as np
 from PIL import Image, UnidentifiedImageError
 
 
@@ -53,3 +54,10 @@ def validate_image_bytes(image_bytes: bytes) -> None:
             image.verify()
     except (OSError, UnidentifiedImageError) as error:
         raise ValueError("无法读取图片，请上传有效的 JPG 或 PNG 文件。") from error
+
+
+def image_array_from_bytes(image_bytes: bytes) -> np.ndarray:
+    """Convert an uploaded image to the RGB pixel array accepted by YOLO."""
+
+    with Image.open(BytesIO(image_bytes)) as image:
+        return np.asarray(image.convert("RGB")).copy()

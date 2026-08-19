@@ -30,6 +30,14 @@ def test_train_parser_uses_yolo_classification_default():
     assert args.epochs == 50
 
 
+def test_train_parser_accepts_gpu_device_selection():
+    from train import build_parser
+
+    args = build_parser().parse_args(["--data", "data/processed", "--device", "0"])
+
+    assert args.device == "0"
+
+
 def test_predict_parser_accepts_image_and_model_paths():
     from predict import build_parser
 

@@ -12,7 +12,11 @@ if str(SRC_ROOT) not in sys.path:
 
 import streamlit as st
 
-from fruit_grader.inference import prediction_from_result, validate_image_bytes
+from fruit_grader.inference import (
+    image_array_from_bytes,
+    prediction_from_result,
+    validate_image_bytes,
+)
 
 
 @st.cache_resource(show_spinner=False)
@@ -50,7 +54,8 @@ def main() -> None:
 
     try:
         with st.spinner("正在进行 YOLO 判别..."):
-            results = load_model(str(model_file)).predict(source=image_bytes, verbose=False)
+            image_array = image_array_from_bytes(image_bytes)
+            results = load_model(str(model_file)).predict(source=image_array, verbose=False)
             prediction = prediction_from_result(results[0])
     except Exception as error:  # Streamlit must present inference errors to the user.
         st.error(f"预测失败：{error}")
