@@ -36,4 +36,4 @@ Fix follow-up (2026-08-19):
 - Re-ran `python -m pytest tests/test_inference.py -q` with output `9 passed in 0.22s`.
 - Re-ran `python -m pytest -q` with output `19 passed in 0.40s`.
 - Self-review confirmed this follow-up changes only `tests/test_inference.py` plus this appended report entry.
-- Exact commit: `cb428d7 test: cover Task 1 validation bounds`
+- Exact commit: `2053154 test: cover Task 1 validation bounds`
