@@ -86,9 +86,9 @@ GitHub Release v1.0.0/
 
 ## 文档与许可证
 
-- 代码采用 MIT License；
+- 代码与 Ultralytics YOLO 派生模型采用 AGPL-3.0；
 - README 提供三步启动、截图、CPU/GPU 说明、模型局限、故障排查和数据/模型来源；
-- `CONTRIBUTING.md` 说明不提交数据、模型、密钥和训练输出；
+- `CONTRIBUTING.md` 说明不提交数据、密钥和训练输出；训练模型通过 GitHub Release 公开发布；
 - 训练数据不随仓库或 Release 分发，保留公开来源链接、许可和引用说明；
 - Release 页面说明模型只判断可见外观，不构成食品安全结论。
 
@@ -105,4 +105,4 @@ GitHub Release v1.0.0/
 
 ## 发布前提与命名
 
-建议仓库名：`RanT711/fruit-freshness-classifier`。实际创建 GitHub 仓库与上传前，需要用户确认该名称或提供替代名称。模型 Release 的发布前提是确认训练数据许可允许分发由其训练得到的权重；若无法确认，则仅开源代码与训练说明，不发布 `best.pt`。
+建议仓库名：`RanT711/fruit-freshness-classifier`。实际创建 GitHub 仓库与上传前，需要用户确认该名称或提供替代名称。项目以 AGPL-3.0 开源，完整公开代码、训练脚本、配置与 `best.pt` Release 资产。模型 Release 的发布前提是确认训练数据许可允许分发由其训练得到的权重；若无法确认，则仅开源代码与训练说明，不发布 `best.pt`。
