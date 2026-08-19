@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Mapping
+import warnings
 
 import numpy as np
 from PIL import Image, UnidentifiedImageError
@@ -82,15 +83,33 @@ def validate_image_bytes(image_bytes: bytes) -> None:
         raise ValueError("图片文件过大，请上传不超过 10MB 的图片。")
 
     try:
-        with Image.open(BytesIO(image_bytes)) as image:
-            validate_image_dimensions(image.width, image.height)
-            image.verify()
-    except (OSError, UnidentifiedImageError) as error:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            with Image.open(BytesIO(image_bytes)) as image:
+                validate_image_dimensions(image.width, image.height)
+                image.verify()
+    except (
+        OSError,
+        UnidentifiedImageError,
+        Image.DecompressionBombError,
+        Image.DecompressionBombWarning,
+    ) as error:
         raise ValueError("无法读取图片，请上传有效的 JPG 或 PNG 文件。") from error
 
 
 def image_array_from_bytes(image_bytes: bytes) -> np.ndarray:
     """Convert an uploaded image to the RGB pixel array accepted by YOLO."""
 
-    with Image.open(BytesIO(image_bytes)) as image:
-        return np.asarray(image.convert("RGB")).copy()
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            with Image.open(BytesIO(image_bytes)) as image:
+                validate_image_dimensions(image.width, image.height)
+                return np.asarray(image.convert("RGB")).copy()
+    except (
+        OSError,
+        UnidentifiedImageError,
+        Image.DecompressionBombError,
+        Image.DecompressionBombWarning,
+    ) as error:
+        raise ValueError("无法读取图片，请上传有效的 JPG 或 PNG 文件。") from error

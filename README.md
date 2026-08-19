@@ -45,14 +45,13 @@
 
 ## 数据来源与引用
 
-本项目训练所依据的公开数据源为 Mendeley Data：
+本项目训练所依据的公开数据源为 Mendeley Data 上的数据集《Fresh and Rotten Fruits Dataset for Machine-Based Evaluation of Fruit Quality》，作者为 Nusrat Sultana、Musfika Jahan、Mohammad Shorif Uddin。
 
-- 数据集：Fresh and rotten fruits classification
-- 记录页：<https://data.mendeley.com/datasets/bdd69gyhv8/1>
+- 数据集记录页：<https://data.mendeley.com/datasets/bdd69gyhv8/1>
 - DOI：`10.17632/bdd69gyhv8.1`
-- 许可：CC BY 4.0
+- 许可：<https://creativecommons.org/licenses/by/4.0/>
 
-如需复现实验，请保留原始作者署名、DOI 和许可说明。仓库不直接附带原始图片数据。
+本项目未重新分发原始图片，而是基于该公开数据集筛选图片，并训练了一个 `fresh` / `spoiled` 的二分类模型用于课程演示与算法验证。如需复现实验或再分发衍生成果，请保留原始作者署名、DOI、CC BY 4.0 许可链接以及上述修改说明。
 
 ## 手动使用方式
 

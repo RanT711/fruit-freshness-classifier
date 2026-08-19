@@ -1,11 +1,13 @@
 from io import BytesIO
 from pathlib import Path
+import warnings
 
 from PIL import Image
 import pytest
 
 from fruit_grader import inference
 from fruit_grader.inference import (
+    image_array_from_bytes,
     prediction_from_values,
     resolve_trusted_model_path,
     validate_image_bytes,
@@ -42,6 +44,40 @@ def test_image_array_from_bytes_converts_uploaded_png_to_rgb_pixels():
 
     assert image.shape == (2, 3, 3)
     assert image[0, 0].tolist() == [12, 34, 56]
+
+
+def test_validate_image_bytes_converts_decompression_bomb_to_value_error(monkeypatch):
+    def raise_decompression_bomb(*args, **kwargs):
+        raise Image.DecompressionBombError("boom")
+
+    monkeypatch.setattr(inference.Image, "open", raise_decompression_bomb)
+
+    with pytest.raises(ValueError, match="无法读取图片"):
+        validate_image_bytes(b"fake image bytes")
+
+
+def test_validate_image_bytes_converts_decompression_bomb_warning_to_value_error(
+    monkeypatch,
+):
+    """A Pillow bomb warning must not escape as an unhandled upload error."""
+
+    def emit_decompression_bomb_warning(*args, **kwargs):
+        warnings.warn("bomb", Image.DecompressionBombWarning)
+
+    monkeypatch.setattr(inference.Image, "open", emit_decompression_bomb_warning)
+
+    with pytest.raises(ValueError, match="无法读取图片"):
+        validate_image_bytes(b"fake image bytes")
+
+
+def test_image_array_from_bytes_converts_decompression_bomb_to_value_error(monkeypatch):
+    def raise_decompression_bomb(*args, **kwargs):
+        raise Image.DecompressionBombError("boom")
+
+    monkeypatch.setattr(inference.Image, "open", raise_decompression_bomb)
+
+    with pytest.raises(ValueError, match="无法读取图片"):
+        image_array_from_bytes(b"fake image bytes")
 
 
 def test_validate_image_bytes_rejects_non_image():
