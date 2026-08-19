@@ -1,116 +1,115 @@
 # 基于 YOLO 的水果新鲜度图片判别系统
 
-## 项目功能
+## Windows 一键开始
 
-本项目使用 Ultralytics YOLO 分类模型，对一张本地水果图片进行二分类：
+拿到仓库后，先在项目根目录执行：
 
-- `fresh`：新鲜；
-- `spoiled`：变质或腐烂。
+```text
+双击 setup_windows.bat
+双击 run_web.bat
+```
 
-支持整理图片数据集、训练 YOLO 模型、命令行单图预测和 Streamlit 图片上传页面。第一版不接入摄像头，也不识别一张图中的多个水果。
+启动成功后，在浏览器打开：
 
-## 环境安装
+`http://127.0.0.1:8501`
 
-建议使用 Python 3.10 或更高版本，在项目根目录运行：
+首次运行会自动创建虚拟环境、安装依赖、从 GitHub Release 下载 `models/best.pt`，并按 `model-manifest.json` 中记录的 SHA-256 做完整性校验：
 
-```bash
+- Release URL：<https://github.com/RanT711/fruit-freshness-classifier/releases/download/v1.0.0/best.pt>
+- SHA-256：`f4c996c44b95f27717874d81c4bd7c7a04dbf09ac5d7cb8bacdd1fdc30eecfe6`
+
+如果电脑没有可用 NVIDIA GPU，系统会自动回退到 CPU。网页预测和命令行预测都能继续使用，只是训练会更慢。
+
+## 这是什么
+
+这是一个本地运行的水果外观二分类系统，使用 Ultralytics YOLO 分类模型把整张图片判别为：
+
+- `fresh`：新鲜
+- `spoiled`：变质或腐烂
+
+当前版本支持数据整理、模型训练、命令行单图预测和 Streamlit 网页上传测试。
+
+## 当前版本边界
+
+- 只支持上传外部静态图片进行识别，不接摄像头、不处理视频流、也不做实时识别；
+- 只判断图片中可见的外观状态，不检测糖度、硬度、内部腐烂或农残；
+- 结果仅用于课程演示和算法验证，不构成食品安全结论；
+- 当前为整图分类，不适合一张图中多个水果的定位任务。
+
+## 模型与开源许可
+
+- 项目代码与发布流程按 AGPL-3.0 开源；
+- 仓库根目录提供完整 [LICENSE](LICENSE)；
+- 发布模型通过 Release 分发，本地下载后会自动做 SHA-256 校验；
+- 训练数据不随仓库分发，使用者需要自行获取并遵守原始数据许可。
+
+## 数据来源与引用
+
+本项目训练所依据的公开数据源为 Mendeley Data：
+
+- 数据集：Fresh and rotten fruits classification
+- 记录页：<https://data.mendeley.com/datasets/bdd69gyhv8/1>
+- DOI：`10.17632/bdd69gyhv8.1`
+- 许可：CC BY 4.0
+
+如需复现实验，请保留原始作者署名、DOI 和许可说明。仓库不直接附带原始图片数据。
+
+## 手动使用方式
+
+如果你不想双击批处理，也可以手动执行：
+
+```powershell
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+python scripts/download_model.py --manifest model-manifest.json --destination models/best.pt
+streamlit run app.py --server.address 127.0.0.1 --server.port 8501 --server.headless true
 ```
 
-如果电脑有 NVIDIA GPU，PyTorch 会自动尝试使用可用 GPU；没有 GPU 也可以运行，但训练速度会较慢。
+单图命令行预测：
 
-如果 Windows 在安装 PyTorch 时提示 `WinError 206`（文件名或扩展名过长），请将虚拟环境建在短路径，再用该环境运行本项目：
-
-```bash
-python -m venv C:\tmp\fruit-yolo-venv
-C:\tmp\fruit-yolo-venv\Scripts\activate
-pip install -r requirements.txt
+```powershell
+python predict.py --image <图片路径> --model models/best.pt
 ```
 
-## 数据集准备
+训练入口：
 
-可使用公开的 [Spoiled and fresh fruit inspection dataset](https://data.mendeley.com/datasets/6ps7gtp2wg/1)。该数据集包含不同水果在新鲜与不新鲜/腐烂状态下的图片。下载与使用时请保留原始许可、DOI 和引用信息。
-
-将图片按标签放入以下目录：
-
-```text
-data/
-  raw/
-    fresh/
-      image_001.jpg
-    spoiled/
-      image_002.jpg
-```
-
-随后运行数据整理脚本：
-
-```bash
+```powershell
 python scripts/prepare_dataset.py --raw-dir data/raw --output-dir data/processed
-```
-
-脚本会按照 70% / 15% / 15% 的比例将每类图片复制到：
-
-```text
-data/processed/
-  train/{fresh,spoiled}/
-  val/{fresh,spoiled}/
-  test/{fresh,spoiled}/
-```
-
-可用 `--seed` 固定随机切分，用 `--split 70,15,15` 自定义比例。不要把同一个实物在不同角度下拍摄的图片分散到训练集和测试集，否则测试结果会偏高。
-
-## 训练模型
-
-```bash
 python train.py --data data/processed
 ```
 
-默认使用轻量 YOLO 分类预训练权重 `yolo26n-cls.pt`，训练 50 轮，输入尺寸为 224。训练完成后，最佳权重会复制到：
+## 常见问题
+
+### 1. 双击 `setup_windows.bat` 没反应
+
+通常是没有安装 Python，或者系统没有把 `py` 启动器装进去。请安装 Python 3.10 及以上版本，并勾选 Windows 启动器后重试。
+
+### 2. 模型下载失败
+
+请检查网络是否能访问 GitHub Release，并确认 `model-manifest.json` 里的下载地址没有被改动。脚本会自动校验 SHA-256；如果校验失败，会拒绝使用该模型并保留安全的旧文件状态。
+
+### 3. `8501` 端口被占用
+
+先关闭已打开的旧网页实例或其他正在占用 8501 端口的程序，然后重新双击 `run_web.bat`。
+
+### 4. 预测时提示图片不支持
+
+网页仅接受常见静态图片格式，上传内容会先做文件大小、像素数量和图片完整性校验。请优先使用正常导出的 JPG、JPEG 或 PNG 图片。
+
+## 复现说明
+
+项目默认处理目录如下：
 
 ```text
-models/best.pt
+data/
+  raw/{fresh,spoiled}/
+  processed/
+    train/{fresh,spoiled}/
+    val/{fresh,spoiled}/
+    test/{fresh,spoiled}/
+models/
+  best.pt
 ```
 
-可以覆盖默认参数：
-
-```bash
-python train.py --data data/processed --epochs 80 --batch 8 --output-model models/tomato-freshness.pt
-```
-
-## 图片预测
-
-使用训练完成的权重预测一张图片：
-
-```bash
-python predict.py --image examples/sample.jpg --model models/best.pt
-```
-
-`examples/sample.jpg` 只是示例路径，运行时请替换为实际图片。命令会输出中文结论、原始类别标签和置信度。
-
-## 启动网页
-
-```bash
-streamlit run app.py
-```
-
-在浏览器中打开终端提示的本地地址，上传 JPG 或 PNG 图片。在侧边栏填写训练完成的 `.pt` 模型路径，即可看到类别和置信度。
-
-## 评价指标
-
-训练完成后应记录：
-
-- Accuracy：整体正确率；
-- 每一类的 Precision、Recall、F1；
-- 混淆矩阵；
-- 单张图片的推理时间。
-
-报告中应重点分析哪些图片被误判，以及光照、背景、遮挡和图片来源对结果的影响。
-
-## 项目限制
-
-- 模型只根据图像可见的外观状态判断，不检测糖度、硬度或内部腐烂；
-- 模型输出不构成食品安全结论；
-- 公开图片与真实拍摄环境可能不同，后续应补充真实场景图片验证泛化能力；
-- 当前版本是整图分类，不适用于一张图片中有多个水果的定位需求。
+最终第四轮训练使用 432 张去重后的原始图片，切分为训练集 301、验证集 64、测试集 67；测试集 Top-1 准确率为 100.0%，但该结果只代表当前公开图片切分上的表现，不等同于真实生产场景精度。

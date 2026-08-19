@@ -6,3 +6,5 @@ data/raw/
 data/processed/
 models/*.pt
 runs/
+yolo26n.pt
+models/best.pt.part
