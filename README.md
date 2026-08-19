@@ -21,6 +21,14 @@ pip install -r requirements.txt
 
 如果电脑有 NVIDIA GPU，PyTorch 会自动尝试使用可用 GPU；没有 GPU 也可以运行，但训练速度会较慢。
 
+如果 Windows 在安装 PyTorch 时提示 `WinError 206`（文件名或扩展名过长），请将虚拟环境建在短路径，再用该环境运行本项目：
+
+```bash
+python -m venv C:\tmp\fruit-yolo-venv
+C:\tmp\fruit-yolo-venv\Scripts\activate
+pip install -r requirements.txt
+```
+
 ## 数据集准备
 
 可使用公开的 [Spoiled and fresh fruit inspection dataset](https://data.mendeley.com/datasets/6ps7gtp2wg/1)。该数据集包含不同水果在新鲜与不新鲜/腐烂状态下的图片。下载与使用时请保留原始许可、DOI 和引用信息。
