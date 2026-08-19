@@ -6,7 +6,9 @@ from pathlib import Path
 import pytest
 
 from scripts.download_model import (
+    build_parser,
     download_model,
+    load_manifest,
     main,
     sha256_file,
     verify_model_file,
@@ -151,6 +153,61 @@ def test_main_rejects_manifest_missing_sha256_field(
 
     with pytest.raises(ValueError, match="sha256"):
         main()
+
+
+@pytest.mark.parametrize(
+    ("argv", "missing_flag"),
+    [
+        (["--destination", "models/best.pt"], "--manifest"),
+        (["--manifest", "model-manifest.json"], "--destination"),
+    ],
+)
+def test_build_parser_requires_each_cli_option(
+    argv: list[str], missing_flag: str, capsys: pytest.CaptureFixture[str]
+):
+    parser = build_parser()
+
+    with pytest.raises(SystemExit) as excinfo:
+        parser.parse_args(argv)
+
+    captured = capsys.readouterr()
+
+    assert excinfo.value.code == 2
+    assert missing_flag in captured.err
+
+
+def test_load_manifest_rejects_non_object_top_level_json(tmp_path: Path):
+    manifest = tmp_path / "model-manifest.json"
+    manifest.write_text(json.dumps([1, 2, 3]), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="JSON"):
+        load_manifest(manifest)
+
+
+@pytest.mark.parametrize(
+    "manifest_data",
+    [
+        {
+            "version": "v1.0.0",
+            "url": "https://example.com/best.pt",
+            "sha256": "357e5d6fafa34d27360fec24b4326d3534905e33c6acdee60198fb078b7b79e5",
+        },
+        {
+            "version": "v1.0.0",
+            "filename": 123,
+            "url": "https://example.com/best.pt",
+            "sha256": "357e5d6fafa34d27360fec24b4326d3534905e33c6acdee60198fb078b7b79e5",
+        },
+    ],
+)
+def test_load_manifest_rejects_missing_or_invalid_filename_field(
+    tmp_path: Path, manifest_data: dict[str, object]
+):
+    manifest = tmp_path / "model-manifest.json"
+    manifest.write_text(json.dumps(manifest_data), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="filename"):
+        load_manifest(manifest)
 
 
 def test_main_rejects_manifest_when_url_is_not_a_string(

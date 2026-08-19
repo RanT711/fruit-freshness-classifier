@@ -45,6 +45,8 @@ def download_model(url: str, expected_sha256: str, destination: Path) -> Path:
 
 def load_manifest(path: Path) -> dict[str, str]:
     manifest = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(manifest, dict):
+        raise ValueError("manifest JSON 顶层必须是对象。")
     required_fields = ("filename", "url", "sha256")
 
     for field in required_fields:
