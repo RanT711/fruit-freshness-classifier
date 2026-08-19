@@ -61,7 +61,7 @@
 ```powershell
 python -m venv .venv
 .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-windows.txt
 python scripts/download_model.py --manifest model-manifest.json --destination models/best.pt
 streamlit run app.py --server.address 127.0.0.1 --server.port 8501 --server.headless true
 ```
