@@ -49,9 +49,26 @@ def test_validate_image_bytes_rejects_non_image():
         validate_image_bytes(b"not an image")
 
 
+def test_validate_image_bytes_rejects_payload_larger_than_10_mib():
+    oversized_payload = b"x" * ((10 * 1024 * 1024) + 1)
+
+    with pytest.raises(ValueError, match="10MB"):
+        validate_image_bytes(oversized_payload)
+
+
 def test_validate_image_dimensions_rejects_oversized_image():
     with pytest.raises(ValueError, match="像素"):
         validate_image_dimensions(5_000, 4_001)
+
+
+def test_resolve_trusted_model_path_rejects_non_pt_suffix_inside_models(tmp_path: Path):
+    models_root = tmp_path / "models"
+    models_root.mkdir()
+    invalid_model = models_root / "best.onnx"
+    invalid_model.write_bytes(b"not a pytorch model")
+
+    with pytest.raises(ValueError, match=r"\.pt"):
+        resolve_trusted_model_path(str(invalid_model), models_root)
 
 
 def test_resolve_trusted_model_path_rejects_path_outside_models(tmp_path: Path):

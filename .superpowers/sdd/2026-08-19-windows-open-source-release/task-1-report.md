@@ -29,3 +29,11 @@ Self-review:
 
 Concerns:
 - No dedicated Streamlit UI test coverage was added in this task; behavior is covered through inference-layer tests plus manual path-handling review in `app.py`.
+
+Fix follow-up (2026-08-19):
+- Added a real pytest regression case proving `validate_image_bytes` rejects a payload larger than `10 * 1024 * 1024` bytes. The test uses a raw byte payload above 10 MiB so it deterministically hits the upload-size guard before any image-format or pixel checks.
+- Added a pytest regression case proving `resolve_trusted_model_path` rejects a non-`.pt` file even when the file is located inside `models_root`.
+- Re-ran `python -m pytest tests/test_inference.py -q` with output `9 passed in 0.22s`.
+- Re-ran `python -m pytest -q` with output `19 passed in 0.40s`.
+- Self-review confirmed this follow-up changes only `tests/test_inference.py` plus this appended report entry.
+- Exact commit: `cb428d7 test: cover Task 1 validation bounds`
