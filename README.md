@@ -13,7 +13,7 @@
 
 `http://127.0.0.1:8501`
 
-首次运行会自动创建虚拟环境、安装依赖、从 GitHub Release 下载 `models/best.pt`，并按 `model-manifest.json` 中记录的 SHA-256 做完整性校验：
+首次运行会自动创建虚拟环境、安装依赖，并使用仓库内已包含的 `models/best.pt`：
 
 The repository now includes the trained `models/best.pt` file directly. A fresh clone uses this bundled weight and does not require a separate model download.
 
@@ -42,8 +42,8 @@ The repository now includes the trained `models/best.pt` file directly. A fresh 
 
 - 项目代码与发布流程按 AGPL-3.0 开源；
 - 仓库根目录提供完整 [LICENSE](LICENSE)；
-- 发布模型通过 Release 分发，本地下载后会自动做 SHA-256 校验；
-- 训练数据不随仓库分发，使用者需要自行获取并遵守原始数据许可。
+- 仓库内已包含本次实践使用的演示权重、数据集副本和训练记录；图片与训练记录通过 Git LFS 管理；
+- 使用完整数据和训练记录时，请先安装 Git LFS 并执行 `git lfs pull`。
 
 ## 数据来源与引用
 
@@ -53,7 +53,7 @@ The repository now includes the trained `models/best.pt` file directly. A fresh 
 - DOI：`10.17632/bdd69gyhv8.1`
 - 许可：<https://creativecommons.org/licenses/by/4.0/>
 
-本项目未重新分发原始图片，而是基于该公开数据集筛选图片，并训练了一个 `fresh` / `spoiled` 的二分类模型用于课程演示与算法验证。如需复现实验或再分发衍生成果，请保留原始作者署名、DOI、CC BY 4.0 许可链接以及上述修改说明。
+本公开版本包含基于该公开数据集筛选得到的图片副本，并训练了一个 `fresh` / `spoiled` 的二分类模型用于课程演示与算法验证。再分发图片或衍生成果时，请保留原始作者署名、DOI、CC BY 4.0 许可链接以及上述修改说明。
 
 ## 手动使用方式
 
