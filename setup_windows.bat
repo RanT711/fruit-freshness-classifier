@@ -4,61 +4,46 @@ set "PYTHONUTF8=1"
 
 pushd "%~dp0"
 if errorlevel 1 (
-    echo 无法进入项目目录。
-    set "STATUS=!ERRORLEVEL!"
-    exit /b !STATUS!
+    echo Cannot enter project directory.
+    exit /b 1
 )
 
-echo [1/4] 检查 Python 3 环境...
+echo [1/4] Checking Python 3...
 py -3 -V >nul 2>&1
 if errorlevel 1 (
-    echo 未找到 py -3，请先安装 Python 3 并启用 Windows 启动器。
-    set "STATUS=!ERRORLEVEL!"
+    echo Python 3 with the Windows launcher was not found.
     popd
-    exit /b !STATUS!
+    exit /b 1
 )
 
-if not exist ".venv\\Scripts\\python.exe" (
-    echo [2/4] 创建虚拟环境...
+if not exist ".venv\Scripts\python.exe" (
+    echo [2/4] Creating virtual environment...
     py -3 -m venv .venv
     if errorlevel 1 (
-        echo 创建虚拟环境失败。
-        set "STATUS=!ERRORLEVEL!"
+        echo Failed to create virtual environment.
         popd
-        exit /b !STATUS!
+        exit /b 1
     )
 ) else (
-    echo [2/4] 已检测到虚拟环境，跳过创建。
+    echo [2/4] Virtual environment already exists.
 )
 
-echo [3/4] 安装运行依赖...
+echo [3/4] Installing runtime dependencies...
 .venv\Scripts\python.exe -m pip install -r requirements-windows.txt
 if errorlevel 1 (
-    echo 安装依赖失败。
-    set "STATUS=!ERRORLEVEL!"
+    echo Dependency installation failed.
     popd
-    exit /b !STATUS!
+    exit /b 1
 )
 
-if not exist "models" (
-    mkdir "models"
-    if errorlevel 1 (
-        echo 创建 models 目录失败。
-        set "STATUS=!ERRORLEVEL!"
-        popd
-        exit /b !STATUS!
-    )
-)
-
-echo [4/4] 下载并校验模型文件...
-.venv\Scripts\python.exe scripts\download_model.py --manifest model-manifest.json --destination models\best.pt
-if errorlevel 1 (
-    echo 下载或校验模型失败。
-    set "STATUS=!ERRORLEVEL!"
+if not exist "models\best.pt" (
+    echo [4/4] Bundled model is missing: models\best.pt
+    echo Please download the repository again or restore the model file.
     popd
-    exit /b !STATUS!
+    exit /b 1
 )
 
-echo 安装完成，可以运行 run_web.bat 启动页面。
+echo [4/4] Bundled model found: models\best.pt
+echo Setup complete. Run run_web.bat to start the app.
 popd
 exit /b 0

@@ -15,7 +15,9 @@
 
 首次运行会自动创建虚拟环境、安装依赖、从 GitHub Release 下载 `models/best.pt`，并按 `model-manifest.json` 中记录的 SHA-256 做完整性校验：
 
-- Release URL：<https://github.com/RanT711/fruit-freshness-classifier/releases/download/v1.0.0/best.pt>
+The repository now includes the trained `models/best.pt` file directly. A fresh clone uses this bundled weight and does not require a separate model download.
+
+- Included model: `models/best.pt`
 - SHA-256：`f4c996c44b95f27717874d81c4bd7c7a04dbf09ac5d7cb8bacdd1fdc30eecfe6`
 
 如果电脑没有可用 NVIDIA GPU，系统会自动回退到 CPU。网页预测和命令行预测都能继续使用，只是训练会更慢。
@@ -61,7 +63,6 @@
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements-windows.txt
-python scripts/download_model.py --manifest model-manifest.json --destination models/best.pt
 streamlit run app.py --server.address 127.0.0.1 --server.port 8501 --server.headless true
 ```
 
