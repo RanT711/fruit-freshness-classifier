@@ -47,3 +47,31 @@ def test_prepare_dataset_rejects_missing_class(tmp_path: Path):
 def test_dataset_split_rejects_percentages_not_totaling_one_hundred():
     with pytest.raises(ValueError, match="100"):
         DatasetSplit(70, 20, 20).validate()
+
+
+def test_prepare_dataset_refuses_output_above_raw_root(tmp_path: Path):
+    raw = tmp_path / "data" / "raw"
+    for label in ("fresh", "spoiled"):
+        folder = raw / label
+        folder.mkdir(parents=True)
+        for index in range(3):
+            make_image(folder / f"{index}.jpg")
+
+    with pytest.raises(ValueError, match="上级目录"):
+        prepare_classification_dataset(raw, tmp_path / "data")
+
+    assert (raw / "fresh" / "0.jpg").is_file()
+    assert (raw / "spoiled" / "0.jpg").is_file()
+
+
+def test_prepare_dataset_refuses_output_equal_to_raw_root(tmp_path: Path):
+    raw = tmp_path / "raw"
+    for label in ("fresh", "spoiled"):
+        folder = raw / label
+        folder.mkdir(parents=True)
+        make_image(folder / "0.jpg")
+
+    with pytest.raises(ValueError, match="上级目录"):
+        prepare_classification_dataset(raw, raw)
+
+    assert (raw / "fresh" / "0.jpg").is_file()

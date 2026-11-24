@@ -41,7 +41,7 @@ def prepare_classification_dataset(
     split.validate()
     raw_root = raw_root.resolve()
     output_root = output_root.resolve()
-    _ensure_safe_output_root(output_root)
+    _ensure_safe_output_root(output_root, raw_root)
 
     images_by_label = {
         label: _valid_images(raw_root / label) for label in LABELS
@@ -73,9 +73,13 @@ def prepare_classification_dataset(
     return summary
 
 
-def _ensure_safe_output_root(output_root: Path) -> None:
+def _ensure_safe_output_root(output_root: Path, raw_root: Path) -> None:
     if output_root == Path(output_root.anchor):
         raise ValueError("输出目录不能是文件系统根目录。")
+    if output_root == raw_root or output_root in raw_root.parents:
+        raise ValueError(
+            f"输出目录不能是原始数据目录本身或其上级目录，否则会一并删除原始图片：{output_root}"
+        )
 
 
 def _validate_sources(
